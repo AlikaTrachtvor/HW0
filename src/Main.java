@@ -15,6 +15,7 @@ public class Main {
         // TODO: Add your code here (and add more methods).
     }
 
+    public static
     public static int[] cloneArray(int[] arr){
         int[] cloneArr = new int[arr.length];
         for(int i = 0; i < arr.length; i++){
@@ -64,22 +65,40 @@ public class Main {
     }
     public static void userPlacement(char[][] board, int n, int m, int[] ships){
         int[] shipsClone = cloneArray(ships);
+        boolean flag = true;
         for(int i = 0; i < shipsClone.length; i++) {
             while(shipsClone[i] > 0){
-                System.out.println("Enter location and orientation for battleship of size " + i);
+                if(flag)
+                    System.out.println("Enter location and orientation for battleship of size " + i);
                 int x = scanner.nextInt();
                 int y = scanner.nextInt();
                 int orientation = scanner.nextInt();
-                if(orientation != 0 && orientation != 1)
+                if(orientation != 0 && orientation != 1) {
                     System.out.println("Illegal orientation, try again!");
-                if((x < 0 || x >= n || y < 0 || y >= n))
+                    flag = false;
+                    continue;
+                }
+                if((x < 0 || x >= n || y < 0 || y >= n)) {
                     System.out.println("Illegal tile, try again!");
-                if(!(boarderCheck(n, m, x, y, orientation, i)))
+                    flag = false;
+                    continue;
+                }
+                if(!(boarderCheck(n, m, x, y, orientation, i))) {
                     System.out.println("Battleship exceeds the boundaries of the board, try again!");
-                if(!(overLapping(board, x, y, orientation, i)))
+                    flag = false;
+                    continue;
+                }
+                if(!(overLapping(board, x, y, orientation, i))) {
                     System.out.println("Battleship overlaps another battleship, try again!");
-                if(!(adjacent(board, x, y, orientation, i)))
+                    flag = false;
+                    continue;
+                }
+                if(!(adjacent(board, x, y, orientation, i))) {
                     System.out.println("Adjacent battleship detected, try again!");
+                    flag = false;
+                    continue;
+                }
+
             }
         }
     }
