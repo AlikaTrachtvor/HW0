@@ -15,7 +15,24 @@ public class Main {
         // TODO: Add your code here (and add more methods).
     }
 
-    public static
+    public static void printBoard(char[][] board, int n, int m){
+        for(int i = 0; i <= m; i++){
+            if(i == 0)
+                System.out.print(" ");
+            else
+                System.out.print((i - 1) + " ");
+        }
+        System.out.println();
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j <= m; j++){
+                if(j == 0)
+                    System.out.print(i + " ");
+                else
+                    System.out.print(board[i][j - 1] + " ");
+            }
+            System.out.println();
+        }
+    }
     public static int[] cloneArray(int[] arr){
         int[] cloneArr = new int[arr.length];
         for(int i = 0; i < arr.length; i++){
@@ -63,6 +80,16 @@ public class Main {
         }
         return true;
     }
+    public static void userPlacementAux(char[][] board, int x, int y, int orientaion, int size){
+        if(orientaion == HORIZON) {
+            for(int i = y; i < y + size; i++)
+                board[x][i] = SHIP;
+        }
+        else{
+            for(int i = x; i < x + size; i++)
+                board[i][y] = SHIP;
+        }
+    }
     public static void userPlacement(char[][] board, int n, int m, int[] ships){
         int[] shipsClone = cloneArray(ships);
         boolean flag = true;
@@ -98,7 +125,9 @@ public class Main {
                     flag = false;
                     continue;
                 }
-
+                flag = true;
+                userPlacementAux(board, x, y, orientation, i);
+                ships[i]--;
             }
         }
     }
