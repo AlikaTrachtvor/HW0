@@ -18,7 +18,7 @@ public class Main {
     public static void printBoard(char[][] board, int n, int m){
         for(int i = 0; i <= m; i++){
             if(i == 0)
-                System.out.print(" ");
+                System.out.print("  ");
             else
                 System.out.print((i - 1) + " ");
         }
@@ -65,8 +65,8 @@ public class Main {
         return true;
     }
 
-    public static boolean adjacent(char[][] board, int x, int y, int orientaion, int size){
-        if(orientaion == HORIZON){
+    public static boolean adjacent(char[][] board, int x, int y, int orientation, int size){
+        if(orientation == HORIZON){
             for(int i = x - 1; i <= x + 1; i++)
                 for(int j = y - 1; j <= y + size; j++)
                     if(board[i][j] == SHIP)
@@ -80,8 +80,8 @@ public class Main {
         }
         return true;
     }
-    public static void userPlacementAux(char[][] board, int x, int y, int orientaion, int size){
-        if(orientaion == HORIZON) {
+    public static void placementAux(char[][] board, int x, int y, int orientation, int size){
+        if(orientation == HORIZON) {
             for(int i = y; i < y + size; i++)
                 board[x][i] = SHIP;
         }
@@ -126,12 +126,34 @@ public class Main {
                     continue;
                 }
                 flag = true;
-                userPlacementAux(board, x, y, orientation, i);
+                placementAux(board, x, y, orientation, i);
                 ships[i]--;
             }
         }
     }
 
+    public static void computerPlacement(char[][] board, int n, int m, int[] ships){
+        int[] shipsClone = cloneArray(ships);
+        for(int i = 0; i < shipsClone.length; i++) {
+            while(shipsClone[i] > 0){
+                int x = rnd.nextInt(n);
+                int y = rnd.nextInt(m);
+                int orientation = rnd.nextInt(2);
+                if(orientation != 0 && orientation != 1)
+                    continue;
+                if((x < 0 || x >= n || y < 0 || y >= n))
+                    continue;
+                if(!(boarderCheck(n, m, x, y, orientation, i)))
+                    continue;
+                if(!(overLapping(board, x, y, orientation, i)))
+                    continue;
+                if(!(adjacent(board, x, y, orientation, i)))
+                    continue;
+                placementAux(board, x, y, orientation, i);
+                ships[i]--;
+            }
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         String path = args[0];
@@ -152,5 +174,6 @@ public class Main {
             System.out.println("------------------------------------------------------------");
         }
         System.out.println("All games are over.");
+
     }
 }
