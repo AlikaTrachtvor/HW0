@@ -10,9 +10,51 @@ public class Main {
     public static final char FREE_SPACE = '-';
     public static final int HORIZON = 0;
     public static final int VERTICAL = 1;
+    public static final int ATTACK = 'X';
 
     public static void battleshipGame() {
         // TODO: Add your code here (and add more methods).
+        int [] battleShips = {};
+        int rowNum, colNum;
+        System.out.println("Enter the board size");
+        String boardSize = scanner.nextLine();
+        int maxBoardSize = findMax((int)boardSize.charAt(0),(int)boardSize.charAt(2));
+        rowNum = boardSize.charAt(0);
+        colNum = boardSize.charAt(2);
+        System.out.println("Enter the battleships sizes");
+        for(int i = 1;i <= maxBoardSize ;i++){
+            battleShips[i] = scanner.nextInt();
+        }
+        userPlacement(board,rowNum,colNum,battleShips);
+
+        System.out.println("Your current guessing board: ");
+        printBoard(board, rowNum, colNum);
+        System.out.println("Enter a tile to attack");
+        String userChoice = scanner.nextLine();
+
+        while(!moveCheck(board,rowNum,colNum,userChoice.charAt(0),userChoice.charAt(2))) {
+            System.out.println("Your current guessing board: ");
+            printBoard(board, rowNum, colNum);
+        }
+    }
+    public static boolean moveCheck(char [][]board, int m,int n,int x,int y) {
+        if ((x > m) || (y > n) || (x < 0) || (y < 0)){
+            System.out.println("Illegal tile, try again!");
+            return false;
+        }
+        else
+        if(board[x][y]==ATTACK){
+            System.out.println("Tile already attacked, try again!");
+            return false;
+        }
+        else return true;
+    }
+
+
+    public static int findMax(int num1, int num2){
+        if(num1 >= num2)
+            return num1;
+        else return num2;
     }
 
     public static void printBoard(char[][] board, int n, int m){
@@ -160,7 +202,7 @@ public class Main {
         scanner = new Scanner(new File(path));
         int numberOfGames = scanner.nextInt();
         scanner.nextLine();
-
+        char [][]board = {};
         System.out.println("Total of " + numberOfGames + " games.");
 
         for (int i = 1; i <= numberOfGames; i++) {
@@ -169,7 +211,7 @@ public class Main {
             rnd = new Random(seed);
             scanner.nextLine();
             System.out.println("Game number " + i + " starts.");
-            battleshipGame();
+            battleshipGame(board);
             System.out.println("Game number " + i + " is over.");
             System.out.println("------------------------------------------------------------");
         }
