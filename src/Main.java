@@ -72,16 +72,16 @@ public class Main {
     }
 
 
-    public static void printBoard(char[][] board, int n, int m){
-        for(int i = 0; i <= m; i++){
+    public static void printBoard(char[][] board, int rowNum, int colNum){
+        for(int i = 0; i <= colNum; i++){
             if(i == 0)
                 System.out.print("  ");
             else
                 System.out.print((i - 1) + " ");
         }
         System.out.println();
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j <= m; j++){
+        for(int i = 0; i < rowNum; i++){
+            for(int j = 0; j <= colNum; j++){
                 if(j == 0)
                     System.out.print(i + " ");
                 else
@@ -98,10 +98,10 @@ public class Main {
         return cloneArr;
     }
 
-    public static boolean boarderCheck(int n, int m, int x, int y, int orientation, int size){
-        if(orientation == HORIZON && (y + size - 1) >= m)
+    public static boolean boarderCheck(int rowNum, int colNum, int x, int y, int orientation, int size){
+        if(orientation == HORIZON && (y + size - 1) >= colNum)
             return false;
-        else if(orientation == VERTICAL && (x + size - 1) >= n)
+        else if(orientation == VERTICAL && (x + size - 1) >= rowNum)
             return false;
         return true;
     }
@@ -122,18 +122,20 @@ public class Main {
         return true;
     }
 
-    public static boolean adjacent(char[][] board, int n, int m, int x, int y, int orientation, int size){
+    public static boolean adjacent(char[][] board, int rowNum, int colNum, int x, int y, int orientation, int size){
         if(orientation == HORIZON){
             for(int i = x - 1; i <= x + 1; i++)
                 for(int j = y - 1; j <= y + size; j++)
-                    if(board[i][j] == SHIP)
-                        return false;
+                    if(i >= 0 && i < rowNum && j >= 0 && j < colNum)
+                        if(board[i][j] == SHIP)
+                            return false;
         }
         else{
             for(int i = x - 1; i <= x + size; i++)
                 for(int j = y - 1; j <= y + 1; j++)
-                    if(board[i][j] == SHIP)
-                        return false;
+                    if(i >= 0 && i < rowNum && j >= 0 && j < colNum)
+                        if(board[i][j] == SHIP)
+                            return false;
         }
         return true;
     }
@@ -147,14 +149,14 @@ public class Main {
                 board[i][y] = SHIP;
         }
     }
-    public static void userPlacement(char[][] board, int n, int m, int[] ships){
+    public static void userPlacement(char[][] board, int rowNum, int colNum, int[] ships){
         int[] shipsClone = cloneArray(ships);
         boolean flag = true;
         for(int i = 0; i < shipsClone.length; i++) {
             while(shipsClone[i] > 0){
                 if(flag) {
                     System.out.println("Your current game board: ");
-                    printBoard(board, n, m);
+                    printBoard(board, rowNum, colNum);
                     System.out.println("Enter location and orientation for battleship of size " + i);
                 }
                 int x = scanner.nextInt();
@@ -165,12 +167,12 @@ public class Main {
                     flag = false;
                     continue;
                 }
-                if((x < 0 || x >= n || y < 0 || y >= n)) {
+                if((x < 0 || x >= rowNum || y < 0 || y >= colNum)) {
                     System.out.println("Illegal tile, try again!");
                     flag = false;
                     continue;
                 }
-                if(!(boarderCheck(n, m, x, y, orientation, i))) {
+                if(!(boarderCheck(rowNum, colNum, x, y, orientation, i))) {
                     System.out.println("Battleship exceeds the boundaries of the board, try again!");
                     flag = false;
                     continue;
@@ -180,7 +182,7 @@ public class Main {
                     flag = false;
                     continue;
                 }
-                if(!(adjacent(board, n, m, x, y, orientation, i))) {
+                if(!(adjacent(board, rowNum, colNum, x, y, orientation, i))) {
                     System.out.println("Adjacent battleship detected, try again!");
                     flag = false;
                     continue;
@@ -191,30 +193,83 @@ public class Main {
             }
         }
         System.out.println("Your current game board: ");
-        printBoard(board, n, m);
+        printBoard(board, rowNum, colNum);
     }
 
-    public static void computerPlacement(char[][] board, int n, int m, int[] ships){
+    public static void computerPlacement(char[][] board, int rowNum, int colNum, int[] ships){
         int[] shipsClone = cloneArray(ships);
         for(int i = 0; i < shipsClone.length; i++) {
             while(shipsClone[i] > 0){
-                int x = rnd.nextInt(n);
-                int y = rnd.nextInt(m);
+                int x = rnd.nextInt(rowNum);
+                int y = rnd.nextInt(colNum);
                 int orientation = rnd.nextInt(2);
                 if(orientation != 0 && orientation != 1)
                     continue;
-                if((x < 0 || x >= n || y < 0 || y >= n))
+                if((x < 0 || x >= rowNum || y < 0 || y >= colNum))
                     continue;
-                if(!(boarderCheck(n, m, x, y, orientation, i)))
+                if(!(boarderCheck(rowNum, colNum, x, y, orientation, i)))
                     continue;
                 if(!(overLapping(board, x, y, orientation, i)))
                     continue;
-                if(!(adjacent(board, n, m, x, y, orientation, i)))
+                if(!(adjacent(board, rowNum, colNum, x, y, orientation, i)))
                     continue;
                 placementAux(board, x, y, orientation, i);
                 shipsClone[i]--;
             }
         }
+    }
+    public  static boolean isDrowned(char[][] board, int rowNum, int colNum, int x, int y) {
+        boolean drowned = false;
+        int step = 1;
+        if (board[x - 1][y] == FREE_SPACE && board[x + 1][y] == FREE_SPACE) {
+            while (y - step >= 0 && board[x][y - step] == MISS)
+                step++;
+            if (y - step < 0 || board[x][y - step] == FREE_SPACE) {
+                step = 1;
+                while (y + step < colNum && board[x][y + step] == MISS)
+                    step++;
+                if (y + step >= colNum || board[x][y + step] == FREE_SPACE)
+                    drowned = true;
+            }
+        }
+        else {
+            while (x - step >= 0 && board[x - step][y] == MISS)
+                step++;
+            if (x - step < 0 || board[x - step][y] == FREE_SPACE) {
+                step = 1;
+                while (x + step < rowNum && board[x + step][y] == MISS)
+                    step++;
+                if (x + step >= rowNum || board[x + step][y] == FREE_SPACE)
+                    drowned = true;
+            }
+        }
+        return drowned;
+    }
+
+    public static int computerAttack(char[][] guessBoard, char[][] userBoard, int rowNum, int colNum, int shipsNum){
+        boolean flag = false;
+        int x = 0, y = 0;
+        while(!flag){
+            x = rnd.nextInt(rowNum);
+            y = rnd.nextInt(colNum);
+            if(guessBoard[x][y] == FREE_SPACE)
+                flag = true;
+        }
+        System.out.println("The computer attacked (" + x + ", " + y + ")");
+        if(userBoard[x][y] == SHIP){
+            System.out.println("That is a hit");
+            guessBoard[x][y] = HIT;
+            userBoard[x][y] = MISS;
+            if(isDrowned(userBoard, rowNum,colNum, x, y)){
+               shipsNum--;
+                System.out.println("Your battleship has been drowned, you have left " + shipsNum + " more battleships!");
+            }
+        }
+        else{
+            System.out.println("That is a miss");
+            guessBoard[x][y] = MISS;
+        }
+        return shipsNum;
     }
 
     public static void main(String[] args) throws IOException {
