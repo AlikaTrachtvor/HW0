@@ -12,15 +12,16 @@ public class Main {
     public static final char MISS = 'X';
     public static final int HORIZON = 0;
     public static final int VERTICAL = 1;
+    public static final int ASCII_ZERO = 48;
 
     public static void battleshipGame() {
         // TODO: Add your code here (and add more methods).
-        int rowNum, colNum;
+        int rowNum, colNum, userShipNum = 0, comShipNum = 0;
         System.out.println("Enter the board size");
         String boardSize = scanner.nextLine();
-        rowNum = boardSize.charAt(0);
-        colNum = boardSize.charAt(2);
-        int maxBoardSize = findMax((int)boardSize.charAt(0),(int)boardSize.charAt(2));
+        rowNum = (int)boardSize.charAt(0) - ASCII_ZERO;
+        colNum = (int)boardSize.charAt(2) - ASCII_ZERO;
+        int maxBoardSize = findMax(rowNum,colNum);
         char[][] userBoard = new char[rowNum][colNum];
         char[][] compBoard = new char[rowNum][colNum];
         char[][] userGuessBoard = new char[rowNum][colNum];
@@ -36,35 +37,36 @@ public class Main {
         //need to check this
         System.out.println("Enter the battleships sizes");
         for(int i = 1;i <= maxBoardSize ;i++){
-            battleShips[i] = scanner.nextInt();
+            String ship = scanner.nextLine();
+            battleShips[i] = (int)ship.charAt(2);
+            userShipNum++;
         }
+
+        //I think this would work:
+        String sizes = scanner.nextLine();
+        for(int i = 0; i < sizes.length(); i = i + 4){
+            int size = (int) sizes.charAt(i) - ASCII_ZERO;
+            int quantity = (int) sizes.charAt(i + 2) - ASCII_ZERO;
+            battleShips[size] = quantity;
+            userShipNum += quantity;
+        }
+        comShipNum = userShipNum;
         userPlacement(userBoard, rowNum, colNum, battleShips);
         computerPlacement(compBoard, rowNum, colNum, battleShips);
 
-        //needs to be a function
-        System.out.println("Your current guessing board: ");
-        printBoard(userGuessBoard, rowNum, colNum);
-        System.out.println("Enter a tile to attack");
-        String userChoice = scanner.nextLine();
+        while(userShipNum > 0 && comShipNum > 0){
+            comShipNum = userAttack(userGuessBoard, compBoard, rowNum, colNum, comShipNum);
+            if(comShipNum == 0)
+                break;
+            userShipNum = computerAttack(compGuessBoard, userBoard, rowNum, colNum, userShipNum);
+        }
 
-        while(!moveCheck(userBoard,rowNum,colNum,userChoice.charAt(0),userChoice.charAt(2))) {
-            System.out.println("Your current guessing board: ");
-            printBoard(userBoard, rowNum, colNum);
-        }
-    }
-    public static boolean moveCheck(char [][]board, int m,int n,int x,int y) {
-        if ((x > m) || (y > n) || (x < 0) || (y < 0)){
-            System.out.println("Illegal tile, try again!");
-            return false;
-        }
+        if(userShipNum == 0)
+            System.out.println("You lost ):");
         else
-        if(board[x][y]==MISS){
-            System.out.println("Tile already attacked, try again!");
-            return false;
-        }
-        else return true;
-    }
+            System.out.println("You won the game!");
 
+    }
     public static int findMax(int num1, int num2){
         if(num1 >= num2)
             return num1;
@@ -244,6 +246,46 @@ public class Main {
             }
         }
         return drowned;
+    }
+    public static boolean moveCheck(char [][]board, int rowNum ,int colNum ,int x, int y) {
+        if ((x >= rowNum) || (y >= colNum) || (x < 0) || (y < 0)){
+            System.out.println("Illegal tile, try again!");
+            return false;
+        }
+        else if (board[x][y] == MISS || board[x][y] == HIT) {
+            System.out.println("Tile already attacked, try again!");
+            return false;
+        }
+        else return true;
+    }
+    public static int userAttack(char guessBoard[][],char comBoard[][],int rowNum, int colNum ,int comShipNum){
+
+        System.out.println("Your current guessing board: ");
+        printBoard(guessBoard, rowNum, colNum);
+        System.out.println("Enter a tile to attack");
+        String userChoice = scanner.nextLine();
+        int x = (int)userChoice.charAt(0) - ASCII_ZERO;
+        int y = (int)userChoice.charAt(2) - ASCII_ZERO;
+
+        while (!moveCheck(guessBoard, rowNum, colNum, x, y)) {
+            userChoice = scanner.nextLine();
+            x = (int)userChoice.charAt(0) - ASCII_ZERO;
+            y = (int)userChoice.charAt(2) - ASCII_ZERO;
+        }
+        if(comBoard[x][y] == FREE_SPACE) {
+            System.out.println("That is a miss!");
+            guessBoard[x][y] = MISS;
+        }
+        else{
+            System.out.println("That is a hit!");
+            guessBoard[x][y] = HIT;
+            comBoard[x][y] = MISS;
+            if(isDrowned(comBoard, rowNum, colNum, x, y)){
+                comShipNum--;
+                System.out.println("The computer's battleship has been drowned," + comShipNum + "more battleships to go!");
+            }
+        }
+        return comShipNum;
     }
 
     public static int computerAttack(char[][] guessBoard, char[][] userBoard, int rowNum, int colNum, int shipsNum){
