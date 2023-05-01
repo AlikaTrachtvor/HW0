@@ -13,6 +13,9 @@ public class Main {
     public static final int HORIZON = 0;
     public static final int VERTICAL = 1;
 
+    /**
+     * operates the battleship game
+     */
     public static void battleshipGame() {
         // TODO: Add your code here (and add more methods).
         int rowNum, colNum, userShipNum = 0, comShipNum = 0;
@@ -62,12 +65,24 @@ public class Main {
             System.out.println("You won the game!");
 
     }
+
+    /**
+     * check which number is bigger
+     * @param num1
+     * @param num2
+     * @return the bigger number
+     */
     public static int findMax(int num1, int num2){
         if(num1 >= num2)
             return num1;
         else return num2;
     }
 
+    /**
+     * converts the input info to numerical data format for more convenient usage later
+     * @param str input received from user
+     * @param arr an array used to storage the numerical data for later useage
+     */
     public static void convertToNum(String str, int[] arr){
         int start = 0, end = 0, i = 0, num = 0;
         while(end < str.length()) {
@@ -81,7 +96,12 @@ public class Main {
         }
     }
 
-
+    /**
+     * prints the board
+     * @param board a 2D array which represents the board
+     * @param rowNum number of rows
+     * @param colNum number of columns
+     */
     public static void printBoard(char[][] board, int rowNum, int colNum){
         for(int i = 0; i <= colNum; i++){
             if(i == 0)
@@ -100,6 +120,12 @@ public class Main {
             System.out.println();
         }
     }
+
+    /**
+     * makes a clone of an existing array
+     * @param arr the original array that will be cloned
+     * @return a copy of the original array
+     */
     public static int[] cloneArray(int[] arr){
         int[] cloneArr = new int[arr.length];
         for(int i = 0; i < arr.length; i++){
@@ -107,6 +133,17 @@ public class Main {
         }
         return cloneArr;
     }
+
+    /**
+     * checks whether tho coordinates received from the user are within the boarders of the board
+     * @param rowNum number of rows
+     * @param colNum number of columns
+     * @param x row index
+     * @param y column index
+     * @param orientation orientation of the battleship on the board (vertical or horizontal)
+     * @param size battleship size
+     * @return false if coordinates are within the boarders and true otherwise
+     */
 
     public static boolean boarderCheck(int rowNum, int colNum, int x, int y, int orientation, int size){
         if(orientation == HORIZON && (y + size - 1) >= colNum)
@@ -116,6 +153,15 @@ public class Main {
         return true;
     }
 
+    /**
+     * check whether the ship we're about to place overlaps an existing ship
+     * @param board 2d-array that represents the board
+     * @param x row index
+     * @param y column index
+     * @param orientation orientation of the battleship on the board (vertical or horizontal)
+     * @param size battleship size
+     * @return false if the ship overlaps another ship and true otherwise
+     */
     public static boolean overLapping(char[][] board, int x, int y, int orientation, int size){
         if(orientation == HORIZON){
             for(int i = y; i < y + size; i++){
@@ -132,6 +178,17 @@ public class Main {
         return true;
     }
 
+    /**
+     * checks whether the new ship is adjacent to other ships that are already placed on the board
+     * @param board 2d-array that represents the board
+     * @param rowNum number of rows
+     * @param colNum number of columns
+     * @param x row index
+     * @param y column index
+     * @param orientation orientation of the battleship on the board (vertical or horizontal)
+     * @param size size of the battleship
+     * @return false if the ship is adjacent to other existing ships and true otherwise
+     */
     public static boolean adjacent(char[][] board, int rowNum, int colNum, int x, int y, int orientation, int size){
         if(orientation == HORIZON){
             for(int i = x - 1; i <= x + 1; i++)
@@ -149,6 +206,15 @@ public class Main {
         }
         return true;
     }
+
+    /**
+     * marks the placement of the ship on the board
+     * @param board 2d-array that represents the board
+     * @param x row index
+     * @param y column index
+     * @param orientation orientation of the battleship on the board (vertical or horizontal)
+     * @param size size of the battleship
+     */
     public static void placementAux(char[][] board, int x, int y, int orientation, int size){
         if(orientation == HORIZON) {
             for(int i = y; i < y + size; i++)
@@ -159,6 +225,14 @@ public class Main {
                 board[i][y] = SHIP;
         }
     }
+
+    /**
+     * operates the process of placing the user's battleships on the board
+     * @param board 2d-array that represents the board
+     * @param rowNum number of rows
+     * @param colNum number of columns
+     * @param ships a histogram representing the sizes and the quantity of the ships from each size
+     */
     public static void userPlacement(char[][] board, int rowNum, int colNum, int[] ships){
         int[] shipsClone = cloneArray(ships);
         int[] position = new int[3];
@@ -210,6 +284,14 @@ public class Main {
         printBoard(board, rowNum, colNum);
     }
 
+    /**
+     * operates the process of placing the computer's battleships on the board
+     * @param board 2d-array that represents the board
+     * @param rowNum number of rows
+     * @param colNum number of columns
+     * @param ships a histogram representing the sizes and the quantity of the ships from each size
+     */
+
     public static void computerPlacement(char[][] board, int rowNum, int colNum, int[] ships){
         int[] shipsClone = cloneArray(ships);
         for(int i = 0; i < shipsClone.length; i++) {
@@ -232,6 +314,16 @@ public class Main {
             }
         }
     }
+
+    /**
+     * checks whether the attacked ship has drowned
+     * @param board 2d-array that represents the board
+     * @param rowNum number of rows
+     * @param colNum number of columns
+     * @param x row index
+     * @param y column index
+     * @return true is the battleship has drowned and false otherwise
+     */
     public  static boolean isDrowned(char[][] board, int rowNum, int colNum, int x, int y) {
         boolean drowned = false;
         int step = 1;
@@ -259,6 +351,16 @@ public class Main {
         }
         return drowned;
     }
+
+    /**
+     * checks whether the users move coordinates are within the board and whether the move was already attempted
+     * @param board 2d-array that represents the board
+     * @param rowNum number of rows
+     * @param colNum number of columns
+     * @param x row index
+     * @param y column index
+     * @return true if the move is valid and false otherwise
+     */
     public static boolean moveCheck(char [][]board, int rowNum ,int colNum ,int x, int y) {
         if ((x >= rowNum) || (y >= colNum) || (x < 0) || (y < 0)){
             System.out.println("Illegal tile, try again!");
@@ -270,6 +372,16 @@ public class Main {
         }
         else return true;
     }
+
+    /**
+     * operates the process of the user attack
+     * @param guessBoard 2d-array that represents the user's guess board
+     * @param comBoard 2d-array that represents the opponent's (computer) board
+     * @param rowNum number of rows
+     * @param colNum number of columns
+     * @param comShipNum current number of the computer's ships
+     * @return the updated number of computer ships
+     */
     public static int userAttack(char guessBoard[][],char comBoard[][],int rowNum, int colNum ,int comShipNum){
 
         System.out.println("Your current guessing board: ");
@@ -304,6 +416,15 @@ public class Main {
         return comShipNum;
     }
 
+    /**
+     * operates the process of the user attack
+     * @param guessBoard 2d-array that represents the computer's guess board
+     * @param userBoard 2d-array that represents the opponent's (user) board
+     * @param rowNum number of rows
+     * @param colNum number of columns
+     * @param shipsNum current number of the user's ships
+     * @return the updated number of user ships
+     */
     public static int computerAttack(char[][] guessBoard, char[][] userBoard, int rowNum, int colNum, int shipsNum){
         boolean flag = false;
         int x = 0, y = 0;
