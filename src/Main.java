@@ -19,8 +19,10 @@ public class Main {
         int rowNum, colNum, userShipNum = 0, comShipNum = 0;
         System.out.println("Enter the board size");
         String boardSize = scanner.nextLine();
-        rowNum = (int)boardSize.charAt(0) - ASCII_ZERO;
-        colNum = (int)boardSize.charAt(2) - ASCII_ZERO;
+        int[] rowCol = new int[2];
+        convertToNum(boardSize, rowCol);
+        rowNum = rowCol[0];
+        colNum = rowCol[1];
         int maxBoardSize = findMax(rowNum,colNum);
         char[][] userBoard = new char[rowNum][colNum];
         char[][] compBoard = new char[rowNum][colNum];
@@ -34,19 +36,11 @@ public class Main {
                 compGuessBoard[i][j] = FREE_SPACE;
             }
         int [] battleShips = new int[maxBoardSize];
-        //need to check this
         System.out.println("Enter the battleships sizes");
-        for(int i = 1;i <= maxBoardSize ;i++){
-            String ship = scanner.nextLine();
-            battleShips[i] = (int)ship.charAt(2);
-            userShipNum++;
-        }
-
-        //I think this would work:
         String sizes = scanner.nextLine();
         for(int i = 0; i < sizes.length(); i = i + 4){
-            int size = (int) sizes.charAt(i) - ASCII_ZERO;
-            int quantity = (int) sizes.charAt(i + 2) - ASCII_ZERO;
+            int quantity = (int) sizes.charAt(i) - ASCII_ZERO;
+            int size = (int) sizes.charAt(i + 2) - ASCII_ZERO;
             battleShips[size] = quantity;
             userShipNum += quantity;
         }
@@ -71,6 +65,19 @@ public class Main {
         if(num1 >= num2)
             return num1;
         else return num2;
+    }
+
+    public static void convertToNum(String s, int[] arr){
+        int start = 0, end = 0, i = 0, num = 0;
+        while(end < s.length()) {
+            while (end < s.length() && Character.isDigit(s.charAt(end)))
+                end++;
+            num = Integer.parseInt(s.substring(start, end));
+            arr[i++] = num;
+            while (end < s.length() && !(Character.isDigit(s.charAt(end))))
+                end++;
+            start = end;
+        }
     }
 
 
@@ -153,6 +160,7 @@ public class Main {
     }
     public static void userPlacement(char[][] board, int rowNum, int colNum, int[] ships){
         int[] shipsClone = cloneArray(ships);
+        int x = 0, y = 0, orientation = 0;
         boolean flag = true;
         for(int i = 0; i < shipsClone.length; i++) {
             while(shipsClone[i] > 0){
@@ -161,9 +169,10 @@ public class Main {
                     printBoard(board, rowNum, colNum);
                     System.out.println("Enter location and orientation for battleship of size " + i);
                 }
-                int x = scanner.nextInt();
-                int y = scanner.nextInt();
-                int orientation = scanner.nextInt();
+                String userChoice = scanner.nextLine();
+                x = (int)userChoice.charAt(0) - ASCII_ZERO;
+                y = (int)userChoice.charAt(3) - ASCII_ZERO;
+                orientation = (int)userChoice.charAt(6) - ASCII_ZERO;
                 if(orientation != 0 && orientation != 1) {
                     System.out.println("Illegal orientation, try again!");
                     flag = false;
@@ -265,7 +274,7 @@ public class Main {
         System.out.println("Enter a tile to attack");
         String userChoice = scanner.nextLine();
         int x = (int)userChoice.charAt(0) - ASCII_ZERO;
-        int y = (int)userChoice.charAt(2) - ASCII_ZERO;
+        int y = (int)userChoice.charAt(3) - ASCII_ZERO;
 
         while (!moveCheck(guessBoard, rowNum, colNum, x, y)) {
             userChoice = scanner.nextLine();
@@ -282,7 +291,7 @@ public class Main {
             comBoard[x][y] = MISS;
             if(isDrowned(comBoard, rowNum, colNum, x, y)){
                 comShipNum--;
-                System.out.println("The computer's battleship has been drowned," + comShipNum + "more battleships to go!");
+                System.out.println("The computer's battleship has been drowned," + comShipNum + " more battleships to go!");
             }
         }
         return comShipNum;
