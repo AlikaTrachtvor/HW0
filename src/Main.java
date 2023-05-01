@@ -37,11 +37,11 @@ public class Main {
         int [] battleShips = new int[maxBoardSize];
         System.out.println("Enter the battleships sizes");
         String sizes = scanner.nextLine();
-        int[] size_qunt = new int[sizes.length()];
-        convertToNum(sizes, size_qunt);
-        for(int i = 0; i < sizes.length() && size_qunt[i] > 0 ; i = i + 2){
-            int quantity = size_qunt[i];
-            int size = size_qunt[i + 1];
+        int[] sizeQunt = new int[sizes.length()];
+        convertToNum(sizes, sizeQunt);
+        for(int i = 0; i < sizes.length() && sizeQunt[i] > 0 ; i = i + 2){
+            int quantity = sizeQunt[i];
+            int size = sizeQunt[i + 1];
             battleShips[size] = quantity;
             userShipNum += quantity;
         }
@@ -68,14 +68,14 @@ public class Main {
         else return num2;
     }
 
-    public static void convertToNum(String s, int[] arr){
+    public static void convertToNum(String str, int[] arr){
         int start = 0, end = 0, i = 0, num = 0;
-        while(end < s.length()) {
-            while (end < s.length() && (Character.isDigit(s.charAt(end)) || s.charAt(end) == '-'))
+        while(end < str.length()) {
+            while (end < str.length() && (Character.isDigit(str.charAt(end)) || str.charAt(end) == '-'))
                 end++;
-            num = Integer.parseInt(s.substring(start, end));
+            num = Integer.parseInt(str.substring(start, end));
             arr[i++] = num;
-            while (end < s.length() && !(Character.isDigit(s.charAt(end))) && !(s.charAt(end) == '-'))
+            while (end < str.length() && !(Character.isDigit(str.charAt(end))) && !(str.charAt(end) == '-'))
                 end++;
             start = end;
         }
@@ -235,18 +235,7 @@ public class Main {
     public  static boolean isDrowned(char[][] board, int rowNum, int colNum, int x, int y) {
         boolean drowned = false;
         int step = 1;
-        if (board[x - 1][y] == FREE_SPACE && board[x + 1][y] == FREE_SPACE) {
-            while (y - step >= 0 && board[x][y - step] == MISS)
-                step++;
-            if (y - step < 0 || board[x][y - step] == FREE_SPACE) {
-                step = 1;
-                while (y + step < colNum && board[x][y + step] == MISS)
-                    step++;
-                if (y + step >= colNum || board[x][y + step] == FREE_SPACE)
-                    drowned = true;
-            }
-        }
-        else {
+        if ((y - 1 < 0 || board[x][y - 1] == FREE_SPACE) && (y + 1 >=colNum || board[x][y + 1] == FREE_SPACE)) {
             while (x - step >= 0 && board[x - step][y] == MISS)
                 step++;
             if (x - step < 0 || board[x - step][y] == FREE_SPACE) {
@@ -254,6 +243,17 @@ public class Main {
                 while (x + step < rowNum && board[x + step][y] == MISS)
                     step++;
                 if (x + step >= rowNum || board[x + step][y] == FREE_SPACE)
+                    drowned = true;
+            }
+        }
+        else {
+            while (y - step >= 0 && board[x][y - step] == MISS)
+                step++;
+            if (y - step < 0 || board[x][y - step] == FREE_SPACE) {
+                step = 1;
+                while (y + step < colNum && board[x][y + step] == MISS)
+                    step++;
+                if (y + step >= colNum || board[x][y + step] == FREE_SPACE)
                     drowned = true;
             }
         }
@@ -297,7 +297,8 @@ public class Main {
             comBoard[x][y] = MISS;
             if(isDrowned(comBoard, rowNum, colNum, x, y)){
                 comShipNum--;
-                System.out.println("The computer's battleship has been drowned," + comShipNum + " more battleships to go!");
+                System.out.println("The computer's battleship has been drowned,"
+                        + comShipNum + " more battleships to go!");
             }
         }
         return comShipNum;
@@ -319,13 +320,16 @@ public class Main {
             userBoard[x][y] = MISS;
             if(isDrowned(userBoard, rowNum,colNum, x, y)){
                shipsNum--;
-                System.out.println("Your battleship has been drowned, you have left " + shipsNum + " more battleships!");
+                System.out.println("Your battleship has been drowned, you have left "
+                        + shipsNum + " more battleships!");
             }
         }
         else{
             System.out.println("That is a miss");
             guessBoard[x][y] = MISS;
         }
+        System.out.println("Your current game board: ");
+        printBoard(userBoard, rowNum, colNum);
         return shipsNum;
     }
 
