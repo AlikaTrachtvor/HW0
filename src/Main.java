@@ -12,7 +12,6 @@ public class Main {
     public static final char MISS = 'X';
     public static final int HORIZON = 0;
     public static final int VERTICAL = 1;
-    public static final int ASCII_ZERO = 48;
 
     public static void battleshipGame() {
         // TODO: Add your code here (and add more methods).
@@ -38,9 +37,11 @@ public class Main {
         int [] battleShips = new int[maxBoardSize];
         System.out.println("Enter the battleships sizes");
         String sizes = scanner.nextLine();
-        for(int i = 0; i < sizes.length(); i = i + 4){
-            int quantity = (int) sizes.charAt(i) - ASCII_ZERO;
-            int size = (int) sizes.charAt(i + 2) - ASCII_ZERO;
+        int[] size_qunt = new int[sizes.length()];
+        convertToNum(sizes, size_qunt);
+        for(int i = 0; i < sizes.length() && size_qunt[i] > 0 ; i = i + 2){
+            int quantity = size_qunt[i];
+            int size = size_qunt[i + 1];
             battleShips[size] = quantity;
             userShipNum += quantity;
         }
@@ -70,11 +71,11 @@ public class Main {
     public static void convertToNum(String s, int[] arr){
         int start = 0, end = 0, i = 0, num = 0;
         while(end < s.length()) {
-            while (end < s.length() && Character.isDigit(s.charAt(end)))
+            while (end < s.length() && (Character.isDigit(s.charAt(end)) || s.charAt(end) == '-'))
                 end++;
             num = Integer.parseInt(s.substring(start, end));
             arr[i++] = num;
-            while (end < s.length() && !(Character.isDigit(s.charAt(end))))
+            while (end < s.length() && !(Character.isDigit(s.charAt(end))) && !(s.charAt(end) == '-'))
                 end++;
             start = end;
         }
@@ -160,6 +161,7 @@ public class Main {
     }
     public static void userPlacement(char[][] board, int rowNum, int colNum, int[] ships){
         int[] shipsClone = cloneArray(ships);
+        int[] position = new int[3];
         int x = 0, y = 0, orientation = 0;
         boolean flag = true;
         for(int i = 0; i < shipsClone.length; i++) {
@@ -170,9 +172,10 @@ public class Main {
                     System.out.println("Enter location and orientation for battleship of size " + i);
                 }
                 String userChoice = scanner.nextLine();
-                x = (int)userChoice.charAt(0) - ASCII_ZERO;
-                y = (int)userChoice.charAt(3) - ASCII_ZERO;
-                orientation = (int)userChoice.charAt(6) - ASCII_ZERO;
+                convertToNum(userChoice, position);
+                x = position[0];
+                y = position[1];
+                orientation = position[2];
                 if(orientation != 0 && orientation != 1) {
                     System.out.println("Illegal orientation, try again!");
                     flag = false;
@@ -273,13 +276,16 @@ public class Main {
         printBoard(guessBoard, rowNum, colNum);
         System.out.println("Enter a tile to attack");
         String userChoice = scanner.nextLine();
-        int x = (int)userChoice.charAt(0) - ASCII_ZERO;
-        int y = (int)userChoice.charAt(3) - ASCII_ZERO;
+        int[] tile = new int[2];
+        convertToNum(userChoice, tile);
+        int x = tile[0];
+        int y = tile[1];
 
         while (!moveCheck(guessBoard, rowNum, colNum, x, y)) {
             userChoice = scanner.nextLine();
-            x = (int)userChoice.charAt(0) - ASCII_ZERO;
-            y = (int)userChoice.charAt(2) - ASCII_ZERO;
+            convertToNum(userChoice, tile);
+            x = tile[0];
+            y = tile[1];
         }
         if(comBoard[x][y] == FREE_SPACE) {
             System.out.println("That is a miss!");
